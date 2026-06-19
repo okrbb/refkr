@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="sk" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informačný portál: Reforma krízového riadenia SR</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter & Roboto Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- LeafletJS CSS for Geographically Accurate Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            500: '#f97316', // Rescue orange
+                            600: '#ea580c',
+                            700: '#c2410c',
+                        },
+                        darkblue: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for timeline and horizontal views */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #f97316;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #ea580c;
+        }
+
+        /* Leaflet custom map aesthetic overrides for clear high contrast layout */
+        .leaflet-container {
+            background: #cbd5e1 !important; /* light grey baseline */
+        }
+        .leaflet-bar {
+            border: 1px solid #94a3b8 !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+        }
+        .leaflet-bar a {
+            background-color: #ffffff !important;
+            color: #1e293b !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            transition: all 0.2s;
+        }
+        .leaflet-bar a:hover {
+            background-color: #f8fafc !important;
+            color: #f97316 !important;
+        }
+        .leaflet-control-attribution {
+            background: rgba(255, 255, 255, 0.85) !important;
+            color: #475569 !important;
+            font-size: 9px !important;
+        }
+        .leaflet-control-attribution a {
+            color: #1e293b !important;
+        }
+    </style>
+</head>
+<body class="bg-darkblue-950 text-slate-100 font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Bar / Banner -->
+    <div class="bg-gradient-to-r from-brand-600 to-amber-500 text-white text-xs font-semibold px-4 py-2 text-center tracking-wider uppercase">
+        Vládny návrh zákona schválený • Účinnosť reformy od 1. marca 2027
+    </div>
+
+    <!-- Header / Navigation -->
+    <header class="sticky top-0 z-50 bg-darkblue-950/80 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-brand-500 text-white p-2 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <span class="font-extrabold text-lg tracking-tight text-white uppercase">Krízové Riadenie</span>
+                    <span class="text-brand-500 font-semibold block text-xs -mt-1">Reforma štátnej správy a civilnej ochrany</span>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex space-x-8 text-sm font-medium">
+                <a href="#vychodiskovy-stav" class="text-slate-300 hover:text-brand-500 transition-colors">Dôvod reformy</a>
+                <a href="#casova-os" class="text-slate-300 hover:text-brand-500 transition-colors">Interaktívna os</a>
+                <a href="#kompetencie" class="text-slate-300 hover:text-brand-500 transition-colors">Zmeny v riadení</a>
+                <a href="#regionalny-hladac" class="text-slate-300 hover:text-brand-500 transition-colors">Regionálny prehľad</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Area -->
+    <section class="relative overflow-hidden pt-20 pb-24 md:pt-28 md:pb-36 bg-gradient-to-b from-darkblue-950 via-darkblue-900 to-darkblue-950">
+        <!-- Accent circles -->
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-brand-500/5 blur-[120px] rounded-full pointer-events-none"></div>
+        <div class="absolute bottom-10 right-10 w-[350px] h-[350px] bg-amber-500/5 blur-[100px] rounded-full pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-brand-500/10 text-brand-400 border border-brand-500/20">
+                        Nová éra bezpečnosti obyvateľstva
+                    </span>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-none">
+                        Efektívnejšie <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-amber-400">krízové riadenie</span>, ktoré ochráni občanov včas.
+                    </h1>
+                    <p class="text-lg text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                        Reforma zlučuje rozdrobené regionálne kompetencie, odstraňuje duplicitu a vytvára jeden silný koordinačný článok – 
+                        <strong>Okresný úrad v sídle kraja</strong> – pri zachovaní lokálnej prítomnosti v regiónoch.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+                        <a href="#casova-os" class="w-full sm:w-auto text-center bg-brand-500 hover:bg-brand-600 text-white font-bold px-8 py-4 rounded-xl shadow-xl shadow-brand-500/10 transition-all hover:scale-105">
+                            Preskúmať míľniky reformy
+                        </a>
+                        <a href="#vychodiskovy-stav" class="w-full sm:w-auto text-center border border-slate-700 hover:bg-slate-800 text-slate-300 font-semibold px-8 py-4 rounded-xl transition-all">
+                            Prečo je zmena dôležitá?
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Interactive Hero Widget -->
+                <div class="lg:col-span-5">
+                    <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 backdrop-blur-sm shadow-2xl relative">
+                        <div class="absolute -top-3 -right-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase animate-pulse">
+                            Kľúčový dátum
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2 flex items-center">
+                            <span class="w-2.5 h-2.5 rounded-full bg-brand-500 mr-2"></span>
+                            Spustenie novej organizácie
+                        </h3>
+                        <p class="text-sm text-slate-400 mb-6">Legislatíva a nová organizačná štruktúra v regiónoch nadobúdajú plnú účinnosť.</p>
+                        
+                        <!-- Countdown Widget -->
+                        <div class="grid grid-cols-3 gap-2 text-center mb-6">
+                            <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/50">
+                                <span class="block text-2xl font-black text-white" id="countdown-days">--</span>
+                                <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Dní</span>
+                            </div>
+                            <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/50">
+                                <span class="block text-2xl font-black text-white" id="countdown-hours">--</span>
+                                <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Hodín</span>
+                            </div>
+                            <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/50">
+                                <span class="block text-2xl font-black text-white" id="countdown-mins">--</span>
+                                <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Minút</span>
+                            </div>
+                        </div>
+
+                        <!-- Highlights list -->
+                        <div class="space-y-3 text-xs text-slate-300 border-t border-slate-800/80 pt-4">
+                            <div class="flex justify-between items-center">
+                                <span>Odovzdanie majetku a spisov:</span>
+                                <span class="font-semibold text-amber-400">do 31.1.2027</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span>Výmena starých preukazov CO:</span>
+                                <span class="font-semibold text-amber-400">do 30.6.2027</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span>Prechod všetkých práv a zamestnancov:</span>
+                                <span class="font-semibold text-brand-400">1.1.2027</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pillars: Terajší Stav vs Dôležitosť vs Nový stav -->
+    <section id="vychodiskovy-stav" class="py-20 bg-darkblue-900/50 border-y border-slate-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-brand-500 font-bold uppercase tracking-wider text-sm">Základné princípy</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-2">Analyzujeme súčasnosť a predstavujeme riešenia</h2>
+                <p class="text-slate-400 mt-4 leading-relaxed">Pozrite sa, v čom spočívajú zmeny, aké sú prekážky starého modelu a ako nový systém zaistí plynulý prechod a modernizáciu.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Súčasný stav -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-slate-700 transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="bg-red-500/10 text-red-400 w-12 h-12 rounded-2xl flex items-center justify-center mb-6 border border-red-500/20">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-4">Terajší stav & Problémy</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                            Pôsobnosti vykonávajú jednotlivé okresné úrady s rozdielnym personálnym krytím. Systém je decentralizovaný, riadiaca sekcia MV SR má na regionálnej úrovni iba metodickú, nie priamu kompetenciu. To prináša:
+                        </p>
+                        <ul class="space-y-2 text-xs text-slate-400 mb-6">
+                            <li class="flex items-start">
+                                <span class="text-red-500 mr-2">✕</span> Nejednotné postupy pri mimoriadnych udalostiach.
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-red-500 mr-2">✕</span> Duplicity a aplikačné nezrovnalosti v území.
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-red-500 mr-2">✕</span> Pomalé schvaľovacie a vnútorné procesy.
+                            </li>
+                        </ul>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-500 tracking-wider uppercase">Súčasný nekomplexný model</span>
+                </div>
+
+                <!-- Prečo je reforma dôležitá -->
+                <div class="bg-gradient-to-b from-brand-900/20 to-slate-900/90 border border-brand-500/30 rounded-3xl p-8 hover:border-brand-500/50 transition-all flex flex-col justify-between shadow-lg shadow-brand-500/5">
+                    <div>
+                        <div class="bg-brand-500/10 text-brand-400 w-12 h-12 rounded-2xl flex items-center justify-center mb-6 border border-brand-500/20">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-4">Prečo je dôležitá?</h3>
+                        <p class="text-slate-200 text-sm leading-relaxed mb-6">
+                            Globálne krízy (pandémia, konflikty, migrácia) a lokálne hrozby (povodne, zemetrasenie) ukázali, že reakcia štátu musí byť blesková. Musíme vyriešiť vysoký investičný dlh a amortizáciu materiálu CO.
+                        </p>
+                        <ul class="space-y-2 text-xs text-slate-300 mb-6">
+                            <li class="flex items-start">
+                                <span class="text-brand-400 mr-2">✓</span> Proaktívne plánovanie a prevencia, nie len riešenie krízy.
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-brand-400 mr-2">✓</span> Zlúčenie do funkčných celkov na úrovni kraja.
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-brand-400 mr-2">✓</span> Skrátenie rozhodovacieho reťazca v krízach.
+                            </li>
+                        </ul>
+                    </div>
+                    <span class="text-xs font-semibold text-brand-400 tracking-wider uppercase">Reakcia na klimatický a bezpečnostný vývoj</span>
+                </div>
+
+                <!-- Nový stav -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 hover:border-slate-700 transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="bg-emerald-500/10 text-emerald-400 w-12 h-12 rounded-2xl flex items-center justify-center mb-6 border border-emerald-500/20">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-4">Nový centralizovaný model</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                            Rozhodovanie a analytické úlohy sa presúvajú na 8 okresných úradov v sídle kraja. Zároveň sa zachováva <strong>miestna dostupnosť</strong> prostredníctvom vytvorenia detašovaných pracovísk v územiach.
+                        </p>
+                        <ul class="space-y-2 text-xs text-slate-400 mb-6">
+                            <li class="flex items-start">
+                                <span class="text-emerald-400 mr-2">✓</span> Presun kompetencií pod OÚ v sídle kraja.
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-emerald-400 mr-2">✓</span> Detašované pracoviská bez straty územnej prítomnosti.
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-emerald-400 mr-2">✓</span> Plynulý prechod a zrýchlenie reakčnej schopnosti.
+                            </li>
+                        </ul>
+                    </div>
+                    <span class="text-xs font-semibold text-emerald-400 tracking-wider uppercase">Moderná civilná ochrana</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Horizontal Timeline -->
+    <section id="casova-os" class="py-20 bg-darkblue-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                <div>
+                    <span class="text-brand-500 font-bold uppercase tracking-wider text-sm">Harmonogram projektu</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-2">Interaktívna časová os reformy</h2>
+                </div>
+                <p class="text-slate-400 max-w-md mt-4 md:mt-0">Kliknite na jednotlivé fázy a prejdite dôležitými legislatívnymi, organizačnými a majetkovými míľnikmi transformácie.</p>
+            </div>
+
+            <!-- Horizontal Timeline Navigation Slider -->
+            <div class="relative bg-slate-900/60 border border-slate-800 rounded-3xl p-6 mb-8 shadow-inner">
+                <!-- Outer timeline track container with scrollbar -->
+                <div class="overflow-x-auto custom-scrollbar pb-6 flex items-stretch space-x-6 scroll-smooth snap-x" id="timeline-scroll-container">
+                    
+                    <!-- Fáza 1 -->
+                    <button onclick="selectTimelinePhase(1)" id="phase-btn-1" class="phase-btn group flex-shrink-0 w-80 text-left bg-slate-800/50 hover:bg-slate-800 rounded-2xl p-5 border border-slate-700/50 hover:border-brand-500/50 transition-all snap-start active">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-mono font-bold tracking-widest text-brand-400 uppercase">Máj — Júl 2026</span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-brand-500 group-hover:scale-125 transition-transform"></span>
+                        </div>
+                        <h4 class="text-sm font-bold text-white group-hover:text-brand-300 transition-colors">Legislatívny zrod & stratégia</h4>
+                        <p class="text-xs text-slate-400 mt-2 line-clamp-2">Identifikácia zmien, spracovanie doložky vplyvov a tvorba internej stratégie ľudských zdrojov.</p>
+                    </button>
+
+                    <!-- Fáza 2 -->
+                    <button onclick="selectTimelinePhase(2)" id="phase-btn-2" class="phase-btn group flex-shrink-0 w-80 text-left bg-slate-800/30 hover:bg-slate-800 rounded-2xl p-5 border border-slate-800 hover:border-brand-500/50 transition-all snap-start">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase">August — December 2026</span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-600 group-hover:scale-125 transition-transform"></span>
+                        </div>
+                        <h4 class="text-sm font-bold text-white group-hover:text-brand-300 transition-colors">Schvaľovanie & Centrálna zmena</h4>
+                        <p class="text-xs text-slate-400 mt-2 line-clamp-2">Predloženie do NR SR (1., 2. a 3. čítanie), schválenie nového Organizačného poriadku MV SR a SKR.</p>
+                    </button>
+
+                    <!-- Fáza 3 -->
+                    <button onclick="selectTimelinePhase(3)" id="phase-btn-3" class="phase-btn group flex-shrink-0 w-80 text-left bg-slate-800/30 hover:bg-slate-800 rounded-2xl p-5 border border-slate-800 hover:border-brand-500/50 transition-all snap-start">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase">Január — Február 2027</span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-600 group-hover:scale-125 transition-transform"></span>
+                        </div>
+                        <h4 class="text-sm font-bold text-white group-hover:text-brand-300 transition-colors">Prechod agendy, majetku & personálu</h4>
+                        <p class="text-xs text-slate-400 mt-2 line-clamp-2">Uzatváranie delimitačných protokolov, preloženie zamestnancov a príprava archívov dokumentácie.</p>
+                    </button>
+
+                    <!-- Fáza 4 -->
+                    <button onclick="selectTimelinePhase(4)" id="phase-btn-4" class="phase-btn group flex-shrink-0 w-80 text-left bg-slate-800/30 hover:bg-slate-800 rounded-2xl p-5 border border-slate-800 hover:border-brand-500/50 transition-all snap-start">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-mono font-bold tracking-widest text-brand-400 uppercase">1. MAREC 2027</span>
+                            <span class="w-3 h-3 rounded-full bg-brand-500 ring-4 ring-brand-500/20 group-hover:scale-125 transition-transform"></span>
+                        </div>
+                        <h4 class="text-sm font-bold text-white group-hover:text-brand-300 transition-colors">DEŇ ÚČINNOSTI ZÁKONA</h4>
+                        <p class="text-xs text-slate-400 mt-2 line-clamp-2">Zákony nadobúdajú účinnosť. OÚ v sídle kraja plne preberá kompetencie a záchranné práce.</p>
+                    </button>
+
+                    <!-- Fáza 5 -->
+                    <button onclick="selectTimelinePhase(5)" id="phase-btn-5" class="phase-btn group flex-shrink-0 w-80 text-left bg-slate-800/30 hover:bg-slate-800 rounded-2xl p-5 border border-slate-800 hover:border-brand-500/50 transition-all snap-start">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-mono font-bold tracking-widest text-slate-400 uppercase">Apríl — Jún 2027</span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-600 group-hover:scale-125 transition-transform"></span>
+                        </div>
+                        <h4 class="text-sm font-bold text-white group-hover:text-brand-300 transition-colors">Dobeh transformácie & nové preukazy</h4>
+                        <p class="text-xs text-slate-400 mt-2 line-clamp-2">Nábery nových odborníkov, plynulá obmena preukazov CO MV SR a kontrola prebratého majetku.</p>
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- Selected Phase Details Card (Dynamic Output Box) -->
+            <div class="bg-gradient-to-br from-slate-900 to-darkblue-900 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden" id="phase-details-box">
+                <!-- Glow elements -->
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-brand-500/10 blur-3xl rounded-full"></div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
+                    <div class="lg:col-span-8 space-y-6">
+                        <div class="flex items-center space-x-4">
+                            <span class="px-3 py-1 bg-brand-500/20 text-brand-400 text-xs font-bold rounded-lg uppercase tracking-wider" id="dynamic-phase-tag">Fáza 1 / 5</span>
+                            <h3 class="text-2xl sm:text-3xl font-black text-white" id="dynamic-phase-title">Legislatívny zrod & stratégia</h3>
+                        </div>
+                        <p class="text-slate-300 text-sm sm:text-base leading-relaxed" id="dynamic-phase-desc">
+                            V tejto fáze sa položil pevný koncepčný základ celej reformy. Analyzovala sa rozdrobenosť súčasného stavu a vypracoval sa legislatívny zámer nového vládneho zákona vrátane doložiek vybraných vplyvov.
+                        </p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                            <div class="bg-slate-800/40 p-4 rounded-2xl border border-slate-700/30">
+                                <span class="block text-xs font-bold text-brand-400 uppercase tracking-widest mb-1">Hlavné Aktivity</span>
+                                <ul class="space-y-1.5 text-xs text-slate-300" id="dynamic-phase-activities">
+                                    <li>• Identifikácia potrebných legislatívnych zmien</li>
+                                    <li>• Zverejnenie predbežnej informácie pre verejnosť</li>
+                                    <li>• Vypracovanie legislatívneho návrhu + doložky vplyvov</li>
+                                    <li>• Príprava stratégie transformácie ľudských zdrojov</li>
+                                </ul>
+                            </div>
+                            <div class="bg-slate-800/40 p-4 rounded-2xl border border-slate-700/30">
+                                <span class="block text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">Výstupy a produkty</span>
+                                <ul class="space-y-1.5 text-xs text-slate-300" id="dynamic-phase-outputs">
+                                    <li>• Komunikačná stratégia transformácie</li>
+                                    <li>• Návrhy legislatívneho riešenia</li>
+                                    <li>• Prvotná verzia organizačných zmien</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Stats/Metadata for Selected Phase -->
+                    <div class="lg:col-span-4 bg-slate-950/40 border border-slate-800 rounded-2xl p-5 space-y-4">
+                        <div class="flex justify-between text-xs pb-3 border-b border-slate-800">
+                            <span class="text-slate-400">Trvanie:</span>
+                            <span class="font-bold text-white" id="dynamic-phase-duration">~ 3 mesiace (Máj — Júl 2026)</span>
+                        </div>
+                        <div class="flex justify-between text-xs pb-3 border-b border-slate-800">
+                            <span class="text-slate-400">Zodpovední:</span>
+                            <span class="font-bold text-brand-400" id="dynamic-phase-responsible">SLPS, SKR, KM, OPVA, Tím pre ľudské zdroje</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">Status v projekte:</span>
+                            <span class="font-semibold text-emerald-400 flex items-center" id="dynamic-phase-status">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span>
+                                Ukončené
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kompetencie: Prehľad zmien v kompetenciách -->
+    <section id="kompetencie" class="py-20 bg-darkblue-900/40 border-y border-slate-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-brand-500 font-bold uppercase tracking-wider text-sm">Právna úprava a kompetencie</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-2">Kto robí čo po novom?</h2>
+                <p class="text-slate-400 mt-4 leading-relaxed">Súčasný model roztrieštených kompetencií prechádza zjednotením. Kliknutím na jednotlivé kompetencie uvidíte konkrétne zmeny a presun agendy.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- Competency selector list -->
+                <div class="lg:col-span-5 space-y-3">
+                    <button onclick="selectCompetency('zachranne-prace')" id="comp-btn-zachranne-prace" class="comp-btn w-full text-left bg-slate-900 border border-slate-800 hover:border-brand-500/50 p-4 rounded-xl transition-all active">
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold text-sm text-white">1. Riadenie záchranných prác</span>
+                            <span class="text-brand-500 text-xs">Aktívne</span>
+                        </div>
+                    </button>
+                    <button onclick="selectCompetency('mimoriadna-situacia')" id="comp-btn-mimoriadna-situacia" class="comp-btn w-full text-left bg-slate-900/40 border border-slate-900 hover:border-brand-500/50 p-4 rounded-xl transition-all">
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold text-sm text-slate-300">2. Vyhlasovanie mimoriadnej situácie</span>
+                            <span class="text-slate-500 text-xs">Zobraziť</span>
+                        </div>
+                    </button>
+                    <button onclick="selectCompetency('preukazy')" id="comp-btn-preukazy" class="comp-btn w-full text-left bg-slate-900/40 border border-slate-900 hover:border-brand-500/50 p-4 rounded-xl transition-all">
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold text-sm text-slate-300">3. Vydávanie preukazov CO</span>
+                            <span class="text-slate-500 text-xs">Zobraziť</span>
+                        </div>
+                    </button>
+                    <button onclick="selectCompetency('hospodarska-mobilizacia')" id="comp-btn-hospodarska-mobilizacia" class="comp-btn w-full text-left bg-slate-900/40 border border-slate-900 hover:border-brand-500/50 p-4 rounded-xl transition-all">
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold text-sm text-slate-300">4. Hospodárska mobilizácia</span>
+                            <span class="text-slate-500 text-xs">Zobraziť</span>
+                        </div>
+                    </button>
+                    <button onclick="selectCompetency('stavebne-konanie')" id="comp-btn-stavebne-konanie" class="comp-btn w-full text-left bg-slate-900/40 border border-slate-900 hover:border-brand-500/50 p-4 rounded-xl transition-all">
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold text-sm text-slate-300">5. Stavebné konania & CO kryty</span>
+                            <span class="text-slate-500 text-xs">Zobraziť</span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Competency Detailed Card -->
+                <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6" id="competency-detail-card">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                        <h3 class="text-xl font-bold text-white flex items-center" id="comp-title">
+                            <span class="w-3 h-3 rounded-full bg-brand-500 mr-2"></span>
+                            Riadenie záchranných prác
+                        </h3>
+                        <span class="text-xs font-mono bg-brand-500/15 text-brand-400 px-2 py-1 rounded-md" id="comp-legal-ref">§ 13 ods. 1 písm. g)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="bg-red-500/5 border border-red-500/10 p-5 rounded-2xl">
+                            <span class="block text-xs font-bold text-red-400 uppercase tracking-widest mb-2">DOTERAJŠÍ STAV</span>
+                            <p class="text-xs text-slate-300 leading-relaxed" id="comp-old-desc">
+                                Riadenie záchranných prác sa delilo podľa nejednotných územných obvodov a okresov, čo v praxi spôsobovalo časové oneskorenie, absenciu koordinácie a spory v tom, kto môže vydávať príkazy obciam a organizáciám.
+                            </p>
+                        </div>
+                        <div class="bg-emerald-500/5 border border-emerald-500/10 p-5 rounded-2xl">
+                            <span class="block text-xs font-bold text-emerald-400 uppercase tracking-widest mb-2">NOVÝ STAV PO REFORME</span>
+                            <p class="text-xs text-slate-200 leading-relaxed" id="comp-new-desc">
+                                Okresný úrad v sídle kraja priamo riadi záchranné práce v rozsahu presahujúcom územie obce alebo ak sám prevezme riadenie. Má výslovné oprávnenie ukladať úlohy a príkazy prednostom iných OÚ, starostom a podnikom v kraji.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Highlight Quote -->
+                    <div class="bg-slate-950/40 p-4 rounded-xl border border-slate-800/80 text-xs text-slate-400 italic" id="comp-summary">
+                        "Cieľom je dosiahnuť jednotné riadenie, rýchly a flexibilný výkon štátnej správy bez kompetenčnej neistoty pri katastrofách presahujúcich okres."
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Regionálny prehľad a vyhľadávač s REAL GEOGRAPHIC MAPOU -->
+    <section id="regionalny-hladac" class="py-20 bg-darkblue-950">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-brand-500 font-bold uppercase tracking-wider text-sm">Dostupnosť v regiónoch</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-2">Geograficky verná mapa a vyhľadávač pracovísk</h2>
+                <p class="text-slate-400 mt-4 leading-relaxed">Interaktívna, dokonale čitateľná taktická mapa Slovenska. Klikni priamo na strediská civilnej ochrany alebo vyhľadaj svoj okres.</p>
+            </div>
+
+            <!-- Dashboard Layout: Map on left, detail / search on right -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 lg:p-8 shadow-2xl space-y-8">
+                
+                <!-- Dynamic search bars and controls at the top of dashboard -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Text Search Input -->
+                    <div>
+                        <label for="district-search-input" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Vyhľadaj svoj okres (napr. Pezinok, Brezno, Sabinov):</label>
+                        <div class="relative">
+                            <input oninput="searchDistrict()" id="district-search-input" type="text" placeholder="Začnite písať názov okresu..." class="w-full bg-slate-950 border border-slate-750 focus:border-brand-500 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none transition-all">
+                            <span class="absolute right-3 top-3 text-slate-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown Select Region -->
+                    <div>
+                        <label for="region-select" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Alebo rýchlo zvoľ kraj:</label>
+                        <select onchange="selectRegionFromDropdown()" id="region-select" class="w-full bg-slate-950 border border-slate-750 focus:border-brand-500 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none transition-all">
+                            <option value="">-- Všetky kraje --</option>
+                            <option value="bratislavsky">Bratislavský kraj</option>
+                            <option value="trnava">Trnavský kraj</option>
+                            <option value="trencin">Trenčiansky kraj</option>
+                            <option value="nitra">Nitriansky kraj</option>
+                            <option value="zilina">Žilinský kraj</option>
+                            <option value="banska-bystrica">Banskobystrický kraj</option>
+                            <option value="presov">Prešovský kraj</option>
+                            <option value="kosice">Košický kraj</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                    
+                    <!-- LEFT COLUMN: REAL MAP (High legibility layout) -->
+                    <div class="lg:col-span-7 bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden min-h-[500px]">
+                        
+                        <div class="flex items-center justify-between mb-3 relative z-10">
+                            <span class="text-xs font-mono text-brand-400 flex items-center tracking-wide uppercase">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-ping"></span>
+                                Operačný pult: Vysoko čitateľná mapa SR (CartoDB Voyager)
+                            </span>
+                            <button onclick="resetMapView()" class="bg-slate-900 border border-slate-800 hover:border-brand-500 hover:text-brand-500 text-slate-400 text-[10px] px-2.5 py-1.5 rounded-lg font-mono tracking-wider transition-colors flex items-center space-x-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                                <span>CELÉ SLOVENSKO</span>
+                            </button>
+                        </div>
+
+                        <!-- Real interactive Leaflet Map with Light Voyager style -->
+                        <div class="w-full flex-grow relative z-10 rounded-xl overflow-hidden min-h-[400px]">
+                            <div id="real-tactical-map" class="w-full h-full min-h-[400px] rounded-xl"></div>
+                        </div>
+
+                        <!-- Map Legend / Indicators -->
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-900/60 pt-3 text-xs relative z-10 mt-3">
+                            <div class="flex items-center space-x-4">
+                                <div class="flex items-center">
+                                    <span class="w-3 h-3 rounded-full bg-brand-500 ring-4 ring-brand-500/20 mr-2"></span>
+                                    <span class="text-slate-400 font-semibold">Vybrané stredisko</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="w-3 h-3 rounded-full bg-slate-500 mr-2"></span>
+                                    <span class="text-slate-500">Ostatné strediská CO</span>
+                                </div>
+                            </div>
+                            <div id="active-map-status-label" class="text-[11px] text-brand-400 font-bold tracking-wide uppercase font-mono">
+                                Aktívne: Banskobystrický kraj (OÚ BB)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: DETAILED INFO CARDS -->
+                    <div class="lg:col-span-5 h-full flex flex-col justify-between">
+                        <div id="no-results-msg" class="hidden text-center py-20 text-slate-400 bg-slate-950/20 border border-slate-850 rounded-2xl">
+                            Nenašli sa žiadne zhody pre hľadaný výraz. Skús iný názov okresu.
+                        </div>
+                        
+                        <div id="results-grid" class="space-y-4 flex-grow">
+                            <!-- Dynamic cards generated by JavaScript will appear here -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-darkblue-950 border-t border-slate-900 py-12 text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="flex items-center space-x-3">
+                <span class="font-extrabold text-sm tracking-tight text-white uppercase">REFORMA KRÍZOVÉHO RIADENIA SR</span>
+                <span class="text-slate-600">|</span>
+                <span>Aktualizované pre IX. volebné obdobie NR SR</span>
+            </div>
+            <div class="flex space-x-6">
+                <a href="#vychodiskovy-stav" class="hover:text-slate-300 transition-colors">Dôvodová správa</a>
+                <a href="#casova-os" class="hover:text-slate-300 transition-colors">Projektový harmonogram</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- LeafletJS Map Library -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- JavaScript Logics & Databases -->
+    <script>
+        // 1. COUNTDOWN WIDGET
+        const targetDate = new Date('March 1, 2027 00:00:00').getTime();
+        
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const difference = targetDate - now;
+
+            if (difference < 0) {
+                document.getElementById('countdown-days').innerText = '00';
+                document.getElementById('countdown-hours').innerText = '00';
+                document.getElementById('countdown-mins').innerText = '00';
+                return;
+            }
+
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+
+            document.getElementById('countdown-days').innerText = String(days).padStart(2, '0');
+            document.getElementById('countdown-hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('countdown-mins').innerText = String(mins).padStart(2, '0');
+        }
+        
+        setInterval(updateCountdown, 60000);
+        updateCountdown();
+
+        // 2. TIMELINE DATA & INTERACTIVITY
+        const timelinePhases = {
+            1: {
+                tag: "Fáza 1 / 5",
+                title: "Legislatívny zrod & stratégia",
+                desc: "V tejto fáze sa položil pevný koncepčný základ celej reformy. Analyzovala sa rozdrobenosť súčasného stavu a vypracoval sa legislatívny zámer nového vládneho zákona vrátane doložiek vybraných vplyvov.",
+                activities: [
+                    "Identifikácia potrebných legislatívnych zmien",
+                    "Zverejnenie predbežnej informácie pre verejnosť",
+                    "Vypracovanie legislatívneho návrhu + doložky vplyvov",
+                    "Príprava stratégie transformácie ľudských zdrojov"
+                ],
+                outputs: [
+                    "Komunikačná stratégia transformácie",
+                    "Návrhy legislatívneho riešenia",
+                    "Prvotná verzia organizačných zmien"
+                ],
+                duration: "~ 3 mesiace (Máj — Júl 2026)",
+                responsible: "SLPS, SKR, KM, OPVA, Tím pre ľudské zdroje",
+                status: "Ukončené",
+                statusColor: "emerald-400"
+            },
+            2: {
+                tag: "Fáza 2 / 5",
+                title: "Schvaľovanie & Centrálna zmena",
+                desc: "Kľúčové legislatívne procesy prebiehajúce v parlamente spolu s prestavbou Sekcie krízového riadenia (SKR) na Ministerstve vnútra SR. Vzniká moderná centralizovaná riadiaca os.",
+                activities: [
+                    "Medzirezortné pripomienkové konanie (MPK) a posúdenie vládou SR",
+                    "Predloženie legislatívneho návrhu do NR SR (1., 2. a 3. čítanie)",
+                    "Vydanie a schválenie nového Organizačného poriadku MV SR",
+                    "Návrh a schválenie systemizácie SKR s novými organizačnými zložkami"
+                ],
+                outputs: [
+                    "Schválený nový vládny zákon v NR SR",
+                    "Nový organizačný poriadok SKR",
+                    "Upravený kľúčový procesný manuál"
+                ],
+                duration: "~ 5 mesiacov (August — December 2026)",
+                responsible: "SLPS, SKR, SVS, SPSČ, NR SR",
+                status: "Ukončené",
+                statusColor: "emerald-400"
+            },
+            3: {
+                tag: "Fáza 3 / 5",
+                title: "Prechod agendy, majetku & personálu",
+                desc: "Príprava na ostré spustenie zmien. Prebieha majetková, personálna a dokumentačná delimitácia zo zanikajúcich obvodných úradov a OÚ typu 2 a 3 pod krajské strediská.",
+                activities: [
+                    "Podpis delimitačných protokolov o majetku and spisoch",
+                    "Trvalé preloženie zamestnancov krízového riadenia pod OÚ v sídle kraja",
+                    "Ukončenie pracovného pomeru so zamestnancami, ktorí odmietli zmenu",
+                    "Príprava archívu a úprava registratúrneho systému pre nové útvary"
+                ],
+                outputs: [
+                    "Podpísané delimitačné protokoly o správe majetku",
+                    "Dokumentácia o preložení štátnych zamestnancov",
+                    "Aktualizované prístupové práva do JIS hospodárskej mobilizácie"
+                ],
+                duration: "~ 2 mesiace (Január — Február 2027)",
+                responsible: "SVS, SE, SPSČ, OÚ, Tím pre transformáciu",
+                status: "Prebieha",
+                statusColor: "amber-400"
+            },
+            4: {
+                tag: "Fáza 4 / 5",
+                title: "DEŇ ÚČINNOSTI ZÁKONA (1.3.2027)",
+                desc: "Prechodné obdobia sa končia, zákon o civilnej ochrane a riadení štátu v krízových situáciách nadobúda plnú účinnosť. OÚ v sídle kraja preberá kompletné rozhodovacie kompetencie.",
+                activities: [
+                    "Oficiálny štart plného prepojenia úradov krízového riadenia",
+                    "Prebratie riadenia všetkých prebiehajúcich mimoriadnych situácií",
+                    "Vytvorenie a oficiálne spustenie detašovaných pracovísk v územiach",
+                    "Spustenie nového centrálneho modelu krízového riadenia"
+                ],
+                outputs: [
+                    "Kompletný prechod výkonu pôsobnosti local-to-regional",
+                    "Pôsobnosť nad vyhlásenými mimoriadnymi situáciami v krajoch"
+                ],
+                duration: "D-Day (1. marec 2027)",
+                responsible: "Okresné úrady v sídle kraja, MV SR",
+                status: "Pripravuje sa",
+                statusColor: "blue-400"
+            },
+            5: {
+                tag: "Fáza 5 / 5",
+                title: "Dobeh transformácie & nové preukazy",
+                desc: "Stabilizácia nového systému krízového riadenia a obmena preukazov civilnej ochrany za nové, jednotne spravované Ministerstvom vnútra SR.",
+                activities: [
+                    "Nábor a plynulé výberové konania na obsadenie voľných miest",
+                    "Distribúcia a výmena starých preukazov CO za nové preukazy MV SR",
+                    "Zjednotenie centrálnej evidencie vydaných a odňatých preukazov CO",
+                    "Komplexný audit funkčnosti a prebratého majetku po 3 mesiacoch"
+                ],
+                outputs: [
+                    "Kompletne dokončená výmena preukazov (najneskôr do 30.6.2027)",
+                    "Doplnené ľudské zdroje pre plný stav"
+                ],
+                duration: "~ 3 mesiace (Apríl — Jún 2027)",
+                responsible: "MV SR, OÚ v sídle kraja, SPSČ, SKR",
+                status: "Pripravuje sa",
+                statusColor: "blue-400"
+            }
+        };
+
+        function selectTimelinePhase(phaseNum) {
+            // Update active styling of buttons
+            document.querySelectorAll('.phase-btn').forEach((btn, idx) => {
+                if (idx + 1 === phaseNum) {
+                    btn.classList.add('bg-slate-800', 'border-brand-500/50', 'active');
+                    btn.classList.remove('bg-slate-800/30', 'border-slate-800');
+                    btn.querySelector('span:last-child').className = 'w-3 h-3 rounded-full bg-brand-500 ring-4 ring-brand-500/20 transition-transform';
+                } else {
+                    btn.classList.remove('bg-slate-800', 'border-brand-500/50', 'active');
+                    btn.classList.add('bg-slate-800/30', 'border-slate-800');
+                    btn.querySelector('span:last-child').className = 'w-2.5 h-2.5 rounded-full bg-slate-600 transition-transform';
+                }
+            });
+
+            // Update content in dynamic box
+            const phase = timelinePhases[phaseNum];
+            document.getElementById('dynamic-phase-tag').innerText = phase.tag;
+            document.getElementById('dynamic-phase-title').innerText = phase.title;
+            document.getElementById('dynamic-phase-desc').innerText = phase.desc;
+            document.getElementById('dynamic-phase-duration').innerText = phase.duration;
+            document.getElementById('dynamic-phase-responsible').innerText = phase.responsible;
+            
+            // Status and styling
+            const statusEl = document.getElementById('dynamic-phase-status');
+            statusEl.className = `font-semibold text-${phase.statusColor} flex items-center`;
+            statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-${phase.statusColor} mr-1.5 ${phase.status === 'Prebieha' ? 'animate-ping' : ''}"></span>${phase.status}`;
+
+            // Activities List
+            const actList = document.getElementById('dynamic-phase-activities');
+            actList.innerHTML = phase.activities.map(act => `<li>• ${act}</li>`).join('');
+
+            // Outputs List
+            const outList = document.getElementById('dynamic-phase-outputs');
+            outList.innerHTML = phase.outputs.map(out => `<li>• ${out}</li>`).join('');
+        }
+
+        // 3. COMPETENCIES COMPARISON DATABASE
+        const competencies = {
+            'zachranne-prace': {
+                title: "Riadenie záchranných prác",
+                ref: "§ 13 ods. 1 písm. g)",
+                old: "Riadenie záchranných prác sa delilo podľa nejednotných územných obvodov a okresov, čo v praxi spôsobovalo časové oneskorenie, absenciu koordinácie a spory v tom, kto môže vydávať príkazy obciam a organizáciám.",
+                new: "Okresný úrad v sídle kraja priamo riadi záchranné práce v rozsahu presahujúcom územie obce alebo ak sám prevezme riadenie. Má výslovné oprávnenie ukladať úlohy a príkazy prednostom iných OÚ, starostom a podnikom v kraji.",
+                summary: "Umožňuje rýchlejšiu reakciu s jednotným vedením, odstránením duplicity a zachovaním miestnej kontroly."
+            },
+            'mimoriadna-situacia': {
+                title: "Vyhlasovanie mimoriadnej situácie",
+                ref: "§ 13 ods. 4 a 7",
+                old: "Rôzne úrady a obce mohli vyhlásiť a udržiavať mimoriadnu situáciu bez dostatočnej koordinácie a koordinácie s ministerstvom, čo spôsobovalo kompetenčnú neistotu.",
+                new: "OÚ v sídle kraja vyhlasuje a odvoláva mimoriadnu situáciu na území kraja alebo jeho časti. Má právomoc odvolať mimoriadnu situáciu vyhlásenú obcou, ak obec nepostupuje v súlade so zákonom o civilnej ochrane.",
+                summary: "Tento model zaisťuje kontinuitu rozhodovania a eliminuje riziko zneužitia či udržovania nelegitímnych krízových stavov."
+            },
+            'preukazy': {
+                title: "Vydávanie preukazov CO",
+                ref: "§ 34",
+                old: "Preukazy civilnej ochrany boli vydávané a evidované rozptýlene jednotlivými orgánmi, čo spôsobovalo neprehľadnosť, duplicitu v evidencii a náchylnosť na administratívne chyby.",
+                new: "Všetky preukazy CO vydáva a odníma výhradne Ministerstvo vnútra SR, ktoré vedie ich jednotnú centrálnu evidenciu. Držiteľ je povinný po zániku príslušnosti k CO preukaz bezodkladne vrátiť.",
+                summary: "Vytvára sa jednotný vydávací režim a spoľahlivá celoštátna kontrola nad držiteľmi preukazov CO."
+            },
+            'hospodarska-mobilizacia': {
+                title: "Hospodárska mobilizácia",
+                ref: "Zákon č. 179/2011, § 16",
+                old: "Evidencie práceschopných občanov na ukladanie pracovnej povinnosti a vecnej mobilizácie viedli samostatne všetky jednotlivé OÚ, čo sťažovalo medziprevádzkový prenos informácií medzi krajmi a okresmi.",
+                new: "OÚ v sídle kraja sústreďuje a vedie kompletnú evidenciu pre celý kraj prostredníctvom jednotného informačného systému. Koordinuje s obcami prípravu odberných oprávnení a distribúciu regulačných lístkov.",
+                summary: "Dosahuje sa organizačná koncentrácia dát potrebných na hladké zvládnutie krízovej situácie."
+            },
+            'stavebne-konanie': {
+                title: "Stavebné konania & CO kryty",
+                ref: "§ 13 ods. 2 a 3",
+                old: "Odbory krízového riadenia vstupovali do stavebného procesu nekonzistentne, čo komplikovalo výstavbu alebo viedlo k dodatočným zmenám stavebných riešení už rozostavaných civilných krytov.",
+                new: "OÚ v sídle kraja je po novom dotknutým orgánom v stavebnom zámere a v konaniach o povolení užívania stavby, ak ide o zariadenie civilnej ochrany. Uplatňuje svoju pôsobnosť záväzným stanoviskom.",
+                summary: "Predchádza sa zbytočným dodatočným zásahom do stavebných projektov a zabezpečuje sa stabilný ochranný fond krytov."
+            }
+        };
+
+        function selectCompetency(id) {
+            document.querySelectorAll('.comp-btn').forEach(btn => {
+                if (btn.id === `comp-btn-${id}`) {
+                    btn.classList.add('bg-slate-900', 'border-brand-500/50', 'active');
+                    btn.classList.remove('bg-slate-900/40', 'border-slate-900');
+                    btn.querySelector('span:last-child').className = 'text-brand-500 text-xs';
+                    btn.querySelector('span:last-child').innerText = 'Aktívne';
+                } else {
+                    btn.classList.remove('bg-slate-900', 'border-brand-500/50', 'active');
+                    btn.classList.add('bg-slate-900/40', 'border-slate-900');
+                    btn.querySelector('span:last-child').className = 'text-slate-500 text-xs';
+                    btn.querySelector('span:last-child').innerText = 'Zobraziť';
+                }
+            });
+
+            const comp = competencies[id];
+            document.getElementById('comp-title').innerHTML = `<span class="w-3 h-3 rounded-full bg-brand-500 mr-2"></span>${comp.title}`;
+            document.getElementById('comp-legal-ref').innerText = comp.ref;
+            document.getElementById('comp-old-desc').innerText = comp.old;
+            document.getElementById('comp-new-desc').innerText = comp.new;
+            document.getElementById('comp-summary').innerHTML = `"${comp.summary}"`;
+        }
+
+        // 4. REGIONAL DATA & LEAFLET MAP ENGINE
+        const regionDatabase = [
+            {
+                krajKey: "bratislavsky",
+                krajName: "Bratislavský kraj",
+                seat: "Bratislava",
+                coords: [48.1486, 17.1077],
+                districts: "Bratislava I, Bratislava II, Bratislava III, Bratislava IV, Bratislava V, Malacky, Pezinok, Senec",
+                workplaces: [
+                    { name: "Detašované pracovisko Senec", fte: "2 FTE (zamestnanci)" },
+                    { name: "Detašované pracovisko Malacky", fte: "2 FTE (zamestnanci)" },
+                    { name: "Detašované pracovisko Pezinok", fte: "2 FTE (zamestnanci)" }
+                ],
+                totalFtes: "34"
+            },
+            {
+                krajKey: "trnava",
+                krajName: "Trnavský kraj",
+                seat: "Trnava",
+                coords: [48.3775, 17.5884],
+                districts: "Trnava, Hlohovec, Dunajská Streda, Galanta, Piešťany, Senica, Skalica",
+                workplaces: [
+                    { name: "Detašované pracovisko Dunajská Streda", fte: "4 FTE" },
+                    { name: "Detašované pracovisko Galanta", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Piešťany", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Hlohovec", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Skalica", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Senica", fte: "4 FTE" }
+                ],
+                totalFtes: "45"
+            },
+            {
+                krajKey: "trencin",
+                krajName: "Trenčiansky kraj",
+                seat: "Trenčín",
+                coords: [48.8945, 18.0441],
+                districts: "Trenčín, Ilava, Bánovce nad Bebravou, Nové Mesto nad Váhom, Myjava, Považská Bystrica, Púchov, Prievidza, Partizánske",
+                workplaces: [
+                    { name: "Detašované pracovisko Bánovce nad Bebravou", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Nové Mesto nad Váhom", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Považská Bystrica", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Prievidza", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Ilava", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Myjava", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Partizánske", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Púchov", fte: "2 FTE" }
+                ],
+                totalFtes: "40"
+            },
+            {
+                krajKey: "nitra",
+                krajName: "Nitriansky kraj",
+                seat: "Nitra",
+                coords: [48.3061, 18.0878],
+                districts: "Nitra, Zlaté Moravce, Komárno, Levice, Nové Zámky, Šaľa, Topoľčany",
+                workplaces: [
+                    { name: "Detašované pracovisko Komárno", fte: "4 FTE" },
+                    { name: "Detašované pracovisko Levice", fte: "4 FTE" },
+                    { name: "Detašované pracovisko Nové Zámky", fte: "5 FTE" },
+                    { name: "Detašované pracovisko Zlaté Moravce", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Šaľa", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Topoľčany", fte: "3 FTE" }
+                ],
+                totalFtes: "45"
+            },
+            {
+                krajKey: "zilina",
+                krajName: "Žilinský kraj",
+                seat: "Žilina",
+                coords: [49.2232, 18.7401],
+                districts: "Žilina, Bytča, Kysucké Nové Mesto, Čadca, Dolný Kubín, Námestovo, Tvrdošín, Liptovský Mikuláš, Martin, Turčianske Teplice, Ružomberok",
+                workplaces: [
+                    { name: "Detašované pracovisko Čadca", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Dolný Kubín", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Liptovský Mikuláš", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Martin", fte: "4 FTE" },
+                    { name: "Detašované pracovisko Námestovo", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Ružomberok", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Bytča", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Kysucké Nové Mesto", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Turčianske Teplice", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Tvrdošín", fte: "2 FTE" }
+                ],
+                totalFtes: "49"
+            },
+            {
+                krajKey: "banska-bystrica",
+                krajName: "Banskobystrický kraj",
+                seat: "Banská Bystrica",
+                coords: [48.7390, 19.1530],
+                districts: "Banská Bystrica, Brezno, Lučenec, Poltár, Rimavská Sobota, Revúca, Veľký Krtíš, Zvolen, Detva, Krupina, Žiar nad Hronom, Banská Štiavnica, Žarnovica",
+                workplaces: [
+                    { name: "Detašované pracovisko Banská Štiavnica", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Brezno", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Lučenec", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Rimavská Sobota", fte: "4 FTE" },
+                    { name: "Detašované pracovisko Veľký Krtíš", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Zvolen", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Detva", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Krupina", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Poltár", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Revúca", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Žarnovica", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Žiar nad Hronom", fte: "2 FTE" }
+                ],
+                totalFtes: "56"
+            },
+            {
+                krajKey: "presov",
+                krajName: "Prešovský kraj",
+                seat: "Prešov",
+                coords: [49.0018, 21.2393],
+                districts: "Prešov, Sabinov, Bardejov, Humenné, Medzilaborce, Snina, Kežmarok, Poprad, Levoča, Stará Ľubovňa, Stropkov, Svidník, Vranov nad Topľou",
+                workplaces: [
+                    { name: "Detašované pracovisko Bardejov", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Humenné", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Kežmarok", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Poprad", fte: "4 FTE" },
+                    { name: "Detašované pracovisko Stará Ľubovňa", fte: "4 FTE" },
+                    { name: "Detašované pracovisko Stropkov", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Svidník", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Levoča", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Medzilaborce", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Sabinov", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Snina", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Vranov nad Topľou", fte: "3 FTE" }
+                ],
+                totalFtes: "61"
+            },
+            {
+                krajKey: "kosice",
+                krajName: "Košický kraj",
+                seat: "Košice",
+                coords: [48.7164, 21.2611],
+                districts: "Košice I, Košice II, Košice III, Košice IV, Košice-okolie, Michalovce, Sobrance, Rožňava, Spišská Nová Ves, Gelnica, Trebišov",
+                workplaces: [
+                    { name: "Detašované pracovisko Košice-okolie", fte: "4 FTE" },
+                    { name: "Detašované pracovisko Michalovce", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Rožňava", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Trebišov", fte: "3 FTE" },
+                    { name: "Detašované pracovisko Gelnica", fte: "2 FTE" },
+                    { name: "Detašované pracovisko Sobrance", fte: "4 FTE" },
+                    { name: "Detašované pracovisko Spišská Nová Ves", fte: "3 FTE" }
+                ],
+                totalFtes: "48"
+            }
+        ];
+
+        let map;
+        let mapMarkers = {};
+        let geoJsonLayers = {};
+        
+        // Accurate bounding box for Slovakia to prevent user getting lost
+        const slovakiaBounds = L.latLngBounds([47.4, 16.5], [49.9, 22.9]);
+
+        function initTacticalMap() {
+            // Initializing map centered on the heart of Slovakia with optimal limits
+            map = L.map('real-tactical-map', {
+                center: [48.6690, 19.6990], 
+                zoom: 7.2,
+                minZoom: 7.2,
+                maxZoom: 11,
+                zoomSnap: 0.1,
+                maxBounds: slovakiaBounds,
+                maxBoundsViscosity: 1.0,
+                scrollWheelZoom: true,
+                zoomControl: true
+            });
+
+            // Clean, highly legible light theme CartoDB Voyager tiles
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            }).addTo(map);
+
+            // Dynamically fit map bounds to Slovakia based on iframe screen width
+            map.fitBounds(slovakiaBounds, { padding: [10, 10] });
+
+            // 1. Fetch & Draw Regional Borders (Interactive polygons)
+            fetch('https://raw.githubusercontent.com/radoondas/covid-19-slovakia/master/data/kraje.json')
+                .then(res => res.json())
+                .then(data => {
+                    L.geoJSON(data, {
+                        style: function (feature) {
+                            return {
+                                color: '#475569',
+                                weight: 2,
+                                opacity: 0.7,
+                                fillColor: '#334155',
+                                fillOpacity: 0.1,
+                                className: 'transition-all duration-300'
+                            };
+                        },
+                        onEachFeature: function (feature, layer) {
+                            // Mapovanie GeoJSON dát na databázu podľa názvu
+                            const nameMap = {
+                                "Bratislavský": "bratislavsky", "Trnavský": "trnava",
+                                "Trenčiansky": "trencin", "Nitriansky": "nitra",
+                                "Žilinský": "zilina", "Banskobystrický": "banska-bystrica",
+                                "Prešovský": "presov", "Košický": "kosice"
+                            };
+                            let matchedKey = null;
+                            const propsStr = JSON.stringify(feature.properties);
+                            
+                            for (const [skName, key] of Object.entries(nameMap)) {
+                                const normalizedSkName = skName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                                const normalizedProps = propsStr.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                                if (normalizedProps.includes(normalizedSkName)) {
+                                    matchedKey = key;
+                                    break;
+                                }
+                            }
+
+                            if (matchedKey) {
+                                geoJsonLayers[matchedKey] = layer;
+                                
+                                layer.on('click', () => {
+                                    selectRegionFromMap(matchedKey);
+                                });
+                                
+                                layer.on('mouseover', () => {
+                                    if(document.getElementById('region-select').value !== matchedKey) {
+                                        layer.setStyle({ fillOpacity: 0.25, color: '#f97316' });
+                                        layer.bringToFront();
+                                    }
+                                });
+                                
+                                layer.on('mouseout', () => {
+                                    if(document.getElementById('region-select').value !== matchedKey) {
+                                        layer.setStyle({ fillOpacity: 0.1, color: '#475569' });
+                                    }
+                                });
+                            }
+                        }
+                    }).addTo(map);
+                    
+                    // Bezpečná inicializácia oranžového highlightu po načítaní vrstiev
+                    setTimeout(() => {
+                        const currentSelection = document.getElementById('region-select').value || 'banska-bystrica';
+                        updateGeoJsonHighlight(currentSelection);
+                    }, 200);
+
+                }).catch(e => console.log('Regions fetch failed', e));
+
+            // Add Custom Pulsing Glowing Markers for each Region
+            regionDatabase.forEach(region => {
+                const isBB = region.krajKey === 'banska-bystrica';
+                
+                // Beautiful high-contrast markers
+                const customIconHtml = `
+                    <div class="relative flex items-center justify-center pointer-events-auto cursor-pointer" id="marker-icon-${region.krajKey}">
+                        <!-- Pulsing outer wave -->
+                        <span class="absolute w-10 h-10 rounded-full ${isBB ? 'bg-orange-500/30' : 'bg-slate-400/20'} animate-ping duration-1000 pointer-events-none"></span>
+                        <!-- Secondary pulse -->
+                        <span class="absolute w-6 h-6 rounded-full ${isBB ? 'bg-orange-500/40 ring-4 ring-orange-500/20' : 'bg-slate-300/30'} pointer-events-none"></span>
+                        <!-- Precise Core dot -->
+                        <span class="relative block w-3.5 h-3.5 rounded-full ${isBB ? 'bg-orange-600 shadow-md shadow-orange-600/60 ring-2 ring-white' : 'bg-slate-600 border-2 border-white shadow-md'} transition-all duration-300"></span>
+                        <!-- Floating tactical HUD title badge with high legibility -->
+                        <div class="absolute -top-7 whitespace-nowrap bg-slate-900/90 border ${isBB ? 'border-orange-500 text-white font-bold' : 'border-slate-700 text-slate-300'} text-[10px] px-2 py-0.5 rounded-md font-mono tracking-tight shadow-md select-none pointer-events-none">
+                            OÚ ${region.seat}
+                        </div>
+                    </div>
+                `;
+
+                const customMarkerIcon = L.divIcon({
+                    html: customIconHtml,
+                    className: 'custom-div-icon',
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 20]
+                });
+
+                const marker = L.marker(region.coords, { icon: customMarkerIcon }).addTo(map);
+                
+                // Clicking on a real Leaflet marker activates the corresponding sidebar card
+                marker.on('click', () => {
+                    selectRegionFromMap(region.krajKey);
+                });
+
+                mapMarkers[region.krajKey] = marker;
+            });
+        }
+
+        // Reset map view to show the entire country
+        function resetMapView() {
+            if (map) {
+                map.fitBounds(slovakiaBounds, { padding: [10, 10], animate: true, duration: 1.0 });
+                updateMapMarkerHighlight(null);
+                updateGeoJsonHighlight(null);
+                document.getElementById('region-select').value = "";
+                document.getElementById('district-search-input').value = "";
+                renderRegionCards(regionDatabase);
+                document.getElementById('active-map-status-label').innerText = "Zobrazené: Celé Slovensko";
+            }
+        }
+
+        // Renders result card on the right
+        function renderRegionCards(filteredData) {
+            const resultsGrid = document.getElementById('results-grid');
+            const noResultsMsg = document.getElementById('no-results-msg');
+            resultsGrid.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                noResultsMsg.classList.remove('hidden');
+                return;
+            } else {
+                noResultsMsg.classList.add('hidden');
+            }
+
+            filteredData.forEach(region => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-950/80 border border-slate-800 rounded-2xl p-5 sm:p-6 hover:border-slate-700 transition-all space-y-4 flex flex-col justify-between shadow-lg h-full";
+                
+                let workplacesListHtml = region.workplaces.map(wp => `
+                    <div class="flex justify-between items-center bg-slate-900/30 p-2.5 rounded-lg border border-slate-800/60">
+                        <span class="text-xs text-slate-300 font-medium">${wp.name}</span>
+                        <span class="text-[10px] font-mono bg-brand-500/10 text-brand-400 px-2 py-0.5 rounded">${wp.fte}</span>
+                    </div>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-[10px] uppercase font-bold tracking-widest text-brand-400 font-mono">Sídlo v kraji</span>
+                                <h4 class="text-xl font-bold text-white">${region.krajName}</h4>
+                            </div>
+                            <span class="bg-brand-500/10 text-brand-400 text-xs px-3 py-1 rounded-full font-bold border border-brand-500/20 font-mono">OÚ ${region.seat}</span>
+                        </div>
+                        <p class="text-[11.5px] text-slate-400 leading-relaxed bg-slate-900/40 p-2.5 rounded-lg border border-slate-800/80">
+                            <strong class="text-slate-300">Územný obvod spája:</strong> ${region.districts}
+                        </p>
+                        
+                        <div class="space-y-2">
+                            <span class="block text-[10px] uppercase font-bold tracking-wider text-slate-500 font-mono">Lokálne detašované pracoviská (${region.workplaces.length})</span>
+                            <div class="space-y-1.5 max-h-[170px] overflow-y-auto custom-scrollbar pr-1">
+                                ${workplacesListHtml}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t border-slate-800/85 pt-4 flex justify-between items-center bg-slate-950/40 -mx-5 -mb-5 p-5 rounded-b-2xl mt-4">
+                        <span class="text-xs text-slate-400 font-medium">Personálna kapacita odboru:</span>
+                        <span class="font-bold text-xs bg-brand-500/20 text-brand-400 px-3 py-1 rounded-lg border border-brand-500/30 font-mono">${region.totalFtes} FTEs (zamestnancov)</span>
+                    </div>
+                `;
+                resultsGrid.appendChild(card);
+            });
+        }
+
+        // Search by typing
+        function searchDistrict() {
+            const query = document.getElementById('district-search-input').value.toLowerCase().trim();
+            document.getElementById('region-select').value = ""; // Reset dropdown to sync search
+
+            if (query === "") {
+                renderRegionCards(regionDatabase);
+                updateMapMarkerHighlight(null);
+                highlightMapRegion('banska-bystrica');
+                return;
+            }
+
+            const filtered = regionDatabase.filter(reg => {
+                return reg.districts.toLowerCase().includes(query) || reg.krajName.toLowerCase().includes(query);
+            });
+
+            renderRegionCards(filtered);
+
+            // Dynamically highlight region on map based on the single match
+            if (filtered.length === 1) {
+                highlightMapRegion(filtered[0].krajKey);
+            } else {
+                updateMapMarkerHighlight(null);
+            }
+        }
+
+        // Selection from standard dropdown list
+        function selectRegionFromDropdown() {
+            const selectedKey = document.getElementById('region-select').value;
+            document.getElementById('district-search-input').value = ""; // Reset search input
+
+            if (selectedKey === "") {
+                resetMapView();
+                return;
+            }
+
+            const filtered = regionDatabase.filter(reg => reg.krajKey === selectedKey);
+            renderRegionCards(filtered);
+            highlightMapRegion(selectedKey);
+        }
+
+        // Selection by clicking directly on map markers or dropdown triggers
+        function selectRegionFromMap(krajKey) {
+            document.getElementById('district-search-input').value = ""; // Clear text search
+            document.getElementById('region-select').value = krajKey; // Sync dropdown list
+
+            const filtered = regionDatabase.filter(reg => reg.krajKey === krajKey);
+            renderRegionCards(filtered);
+            highlightMapRegion(krajKey);
+        }
+
+        // Highlights real Leaflet marker and GeoJSON polygon
+        function highlightMapRegion(krajKey) {
+            updateMapMarkerHighlight(krajKey);
+            updateGeoJsonHighlight(krajKey);
+            
+            const region = regionDatabase.find(r => r.krajKey === krajKey);
+            if (region && map) {
+                // Focus with an optimal zoom level so adjacent territory is still visible
+                map.setView(region.coords, 8.2, { animate: true, duration: 0.8 });
+                document.getElementById('active-map-status-label').innerText = `Aktívne: ${region.krajName} (OÚ ${region.seat})`;
+            }
+        }
+
+        // Updates marker icons inside Leaflet via DOM manipulation for maximum speed
+        function updateMapMarkerHighlight(activeKey) {
+            regionDatabase.forEach(region => {
+                const isCurrent = region.krajKey === activeKey;
+                const marker = mapMarkers[region.krajKey];
+                
+                if (marker) {
+                    const activeHtml = `
+                        <div class="relative flex items-center justify-center pointer-events-auto cursor-pointer" id="marker-icon-${region.krajKey}">
+                            <span class="absolute w-12 h-12 rounded-full bg-orange-500/35 animate-ping duration-1000 pointer-events-none"></span>
+                            <span class="absolute w-8 h-8 rounded-full bg-orange-500/40 ring-4 ring-orange-500/20 pointer-events-none"></span>
+                            <span class="relative block w-4 h-4 rounded-full bg-orange-600 shadow-lg shadow-orange-600/60 ring-2 ring-white transition-all duration-300"></span>
+                            <div class="absolute -top-8 whitespace-nowrap bg-orange-600 border border-orange-400 text-white font-black text-[10px] px-2 py-0.5 rounded-md font-mono tracking-tight shadow-md select-none pointer-events-none">
+                                OÚ ${region.seat}
+                            </div>
+                        </div>
+                    `;
+
+                    const defaultHtml = `
+                        <div class="relative flex items-center justify-center pointer-events-auto cursor-pointer" id="marker-icon-${region.krajKey}">
+                            <span class="absolute w-8 h-8 rounded-full bg-slate-400/10 pointer-events-none"></span>
+                            <span class="relative block w-3.5 h-3.5 rounded-full bg-slate-500 border border-slate-400 shadow transition-all duration-300"></span>
+                            <div class="absolute -top-7 whitespace-nowrap bg-slate-900/90 border border-slate-700 text-slate-300 text-[10px] px-2 py-0.5 rounded-md font-mono tracking-tight shadow-md select-none pointer-events-none">
+                                OÚ ${region.seat}
+                            </div>
+                        </div>
+                    `;
+
+                    const newIcon = L.divIcon({
+                        html: isCurrent ? activeHtml : defaultHtml,
+                        className: 'custom-div-icon',
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 20]
+                    });
+
+                    marker.setIcon(newIcon);
+                }
+            });
+        }
+
+        // Interaktívne zvýraznenie celého územia (polygónu) kraja
+        function updateGeoJsonHighlight(activeKey) {
+            // Reset do pôvodného utlmeného stavu
+            Object.values(geoJsonLayers).forEach(layer => {
+                layer.setStyle({
+                    color: '#475569',
+                    weight: 2,
+                    fillOpacity: 0.1,
+                    fillColor: '#334155'
+                });
+            });
+            
+            // Zvýraznenie aktívneho kraja
+            if (activeKey && geoJsonLayers[activeKey]) {
+                const activeLayer = geoJsonLayers[activeKey];
+                activeLayer.setStyle({
+                    color: '#f97316',   // Výrazná hrana
+                    weight: 3,
+                    fillOpacity: 0.35,  // Tónovaná výplň územia
+                    fillColor: '#ea580c'
+                });
+                activeLayer.bringToFront();
+            }
+        }
+
+        // Initialize cards, map and preselect Banská Bystrica on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initTacticalMap();
+            selectRegionFromMap('banska-bystrica');
+        });
+
+    </script>
+</body>
+</html>
