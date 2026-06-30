@@ -1554,6 +1554,12 @@
             });
 
             updateRegionSummary(filteredData);
+            // PRIDANÝ KÓD: Upozorniť mapu na zmenu veľkosti kontajnera
+                if (map) {
+                    setTimeout(() => {
+                        map.invalidateSize();
+                    }, 100);
+                }
         }
 
         function updateRegionSummary(filteredData) {
